@@ -11,9 +11,6 @@ void draw_menu(TextureMaps* textures, Body*  P,math );
 
 void draw_ui_on_screen(TextureMaps* textures);
 
-void load(int *index_, u32 *P_viewr,Sprite_Sheet sprite_sheet_player,usize new_char_player_id,
- On_Hit on_hit, On_Hit_Static on_hit_static, On_Hit on_trigger_hit, Entity_Delete On_Entity_Delete_Player );
-
 int get_num_sector();
 void render_add_button_load_ui( );
 void render_remove_button_load_ui();
@@ -46,6 +43,8 @@ int st , ss;
 
 walls get_wall(int index);
 
+sectors get_sectors();
+walls get_wall();
 
 
 void  set_npc_sector_render( Entity *entity, int index );
@@ -53,7 +52,6 @@ void  set_npc_sector_render( Entity *entity, int index );
 
 void  draw_ui( TextureMaps* textures );
 void init_render_internal(void);
-int get_numsect();
 
 void init_ui_time();
 void attack_init( u32 char_id, u32 new_anim_id );

@@ -29,29 +29,14 @@
 #include "../global.h"
 #include "../common.h"
 
-int numText=19;                          //number of textures
-int numSect= 0;                          //number of sectors
-int numWall= 0;                          //number of walls
-
-sectors S[356];
-walls W[356];
-
-
-
 walls get_wall(int i){
 
-   return W[S[i].ws];
+   return global.W[global.S[i].ws];
 
 }
 
 Entity **array_entity;
 
-
-int get_numsect(){
-
-   return numSect;
-
-}
 Sprite_Sheet sprite_sheet_time = {0};
 Sprite_Sheet sprite_sheet_menu = {0};
 
@@ -60,25 +45,6 @@ Sprite_Sheet sprite_sheet_anim_attack = {0};
 u32 time_anim_def_id;
 u32 attack_anim_def_id;
 u32 new_char_menu_id;
-
-typedef struct
-{
- int wx[4],wy[4],wz[4];
- int d;                 //add y distances to sort drawing order
-
- int surface;           //is there a surfaces to draw
- int frontBack, s,w;
-bool should_draw;
-u32 x1, x2, y1, y2;
-u32 wall_start_end;
-}sectors_draw;
-
-typedef struct
-{
- int x,y,z,i,a,l,d;                 //add y distances to sort drawing order
-
-}Next_Character;
- Next_Character next_character[2];
 
 u32 enemy_index   = 0;
 int index_text_ui = 0;
@@ -132,102 +98,10 @@ void attack_init(u32 char_id, u32 new_anim_id){
           attack_anim_id = new_anim_id;
 
 }
-int get_num_sector(){
 
-   return numSect;
-
-}
 
 int index_y = (int)9;
 int index_x = 0;
-
-
-void draw_animation( TextureMaps* textures ){
-
-   int x, y;
-   Animation animation_ = *animation_get( new_char_menu_id );
-
-         Animation_Definition adef = *get_animation_definitiion(animation_.animation_definition_id);
-
-
-         Animation_Frame aframe = adef.frames[animation_.current_frame_index];
-         vec2 offset_anim = { aframe.column, aframe.row};
-
-
-         int wt = 27;
-            //Hold difference in distance
-         index_x = ( int )offset_anim[0];
-
-         if ( (int)index_x >= 8 )
-                index_y = index_y - (int)1;
-
-         if ( index_y <= (int)0 )
-                     index_y = (int)9;
-
-         vec2 frame = {
-
-         sprite_sheet_menu.cell_width * ( offset_anim[0] ),
-
-         sprite_sheet_menu.cell_height  * index_y  };
-
-
-
-         vec2 frame_back = {
-
-         frame[0] - sprite_sheet_menu.cell_width ,
-         frame[1] - sprite_sheet_menu.cell_height
-
-            };
-
-            //draw x verticle lines
-         for(
-
-               x= 0 ;
-
-               x< sprite_sheet_menu.cell_width;
-
-               x++
-
-               )
-               {
-
-
-         //surface
-
-            for(
-
-               y=0 ;
-
-               y< sprite_sheet_menu.cell_height;
-
-               y++){
-
-
-                           int pixel = ( (int)textures[wt].h
-
-                            -  ( (int)(  y +
-                             (int)frame_back[1] )%(int)(
-
-                               frame[1]
-
-                               )
-
-                              ) )
-
-                             * 3 *
-
-                           (int)textures[wt].w + ( (int)( x + (int)frame_back[0] )%(int)frame[0] ) * 3;
-                           int r=  textures[wt].name[pixel+0] ;
-                           int g= textures[wt].name[pixel+1];
-                           int b= textures[wt].name[pixel+2];
-
-                          drawPixel(x, y,r,g,b);
-
-                  }
-
-          }
-
-}
 
 void draw_ui_screen(TextureMaps* textures, Body * P){
 int x,y,t;
@@ -330,7 +204,7 @@ void clipBehindPlayer(int *x1,int *y1,int *z1, int x2,int y2,int z2) //clip line
 int  drawWall(int x1,int x2, int b1,int b2, int t1,int t2,int s,int w, int frontBack, TextureMaps* textures, Body* P,math M)
 {
  int x,y;
- int wt = W[w].wt;
+ int wt = global.W[w].wt;
  //Hold difference in distance
  float ht = 0.f;
 
@@ -363,8 +237,8 @@ int  drawWall(int x1,int x2, int b1,int b2, int t1,int t2,int s,int w, int front
 
   //surface
  if (frontBack == 0){
-    if(S[s].surface== 1){ S[s].surf[x]=y1; }
-    if(S[s].surface== 2){ S[s].surf[x]=y2;}
+    if(global.S[s].surface== 1){ global.S[s].surf[x]=y1; }
+    if(global.S[s].surface== 2){ global.S[s].surf[x]=y2;}
      for(y=y1;y<y2;y++){
 
                int ys = y1 - y0;
@@ -374,9 +248,9 @@ int  drawWall(int x1,int x2, int b1,int b2, int t1,int t2,int s,int w, int front
                int xy  =x0 -ye ;
 
                int pixel= (int) (textures[wt].h - ((int)vt%textures[wt].h)  -1) *3* textures[wt].w + ((int)ht%textures[wt].w)* 3;
-               int r= textures[wt].name[pixel+0] - (W[w].shade / 3); if (r < 0 ){ r = 0;}
-               int g= textures[wt].name[pixel+1] - (W[w].shade / 4); if (g < 0 ){ g = 0;}
-               int b= textures[wt].name[pixel+2] - (W[w].shade / 4); if (b < 0 ){ b = 0;}
+               int r= textures[wt].name[pixel+0] - (global.W[w].shade / 3); if (r < 0 ){ r = 0;}
+               int g= textures[wt].name[pixel+1] - (global.W[w].shade / 4); if (g < 0 ){ g = 0;}
+               int b= textures[wt].name[pixel+2] - (global.W[w].shade / 4); if (b < 0 ){ b = 0;}
 
                if( r + b + g > 0){
                      drawPixel(x,y, r, g, b );
@@ -394,10 +268,10 @@ int  drawWall(int x1,int x2, int b1,int b2, int t1,int t2,int s,int w, int front
     int x2 = x-x0;
     int w0;
 
-    float tile = S[s].ss * 22.f;
+    float tile = global.S[s].ss * 22.f;
 
-    if(S[s].surface== 1){ y2 = S[s].surf[x]; w0  = S[s].z1;}
-    if(S[s].surface== 2){ y1 =S[s].surf[x]; w0  = S[s].z2;}
+    if(global.S[s].surface== 1){ y2 = global.S[s].surf[x]; w0  = global.S[s].z1;}
+    if(global.S[s].surface== 2){ y1 =global.S[s].surf[x]; w0  = global.S[s].z2;}
 
     float lookUpAnDown =  -P->l * 1.1;        if (lookUpAnDown > SH){ lookUpAnDown = SH; }
 
@@ -420,7 +294,7 @@ int  drawWall(int x1,int x2, int b1,int b2, int t1,int t2,int s,int w, int front
             if ( rx < 0 ){ rx = -rx +1;}
             if ( ry < 0 ){ ry = -ry +1;}
 
-            int st = S[s].st;
+            int st = global.S[s].st;
 
             int pixel= (int)(textures[st].h -((int)ry%textures[st].h) -1)  *3* textures[st].w + ((int)rx%textures[st].w)*3 ;
             int r= textures[st].name[pixel+0];
@@ -459,33 +333,33 @@ void draw3D_Walls(TextureMaps* textures, Body*  P,math M)
 int x,s,w,frontBack, cycles, wx[4],wy[4],wz[4]; float CS = M.cos[P->a], SN=M.sin[ P->a];
 
 //order sectors by distance
- for(s=0;s<numSect-1;s++)
+ for(s=0;s<global.numSect-1;s++)
  {
-  for(w=0;w<numSect-s-1;w++)
+  for(w=0;w<global.numSect-s-1;w++)
   {
-   if(S[w].d<S[w+1].d)
+   if(global.S[w].d<global.S[w+1].d)
    {
-    sectors st=S[w]; S[w]=S[w+1]; S[w+1]=st;
+    sectors st= global.S[w]; global.S[w]=global.S[w+1]; global.S[w+1]= st;
    }
   }
  }
 
  //draw sectors
- for(s=0;s<numSect;s++)
+ for(s=0;s<global.numSect;s++)
  {
 
-  S[s].d=0; //clear distance
-       if(P->aabb.position[2]<S[s].z1){ S[s].surface=1;cycles =2;for (x=0;x<SW;x++){ S[s].surf[x] = SH; }}      //bottom surface
-  else if(P->aabb.position[2]>S[s].z2){ S[s].surface=2;cycles =2;for (x=0;x<SW;x++){ S[s].surf[x] = 0; }}   //top    surface
-  else                { S[s].surface=0;cycles =1;}  //no     surfaces
+  global.S[s].d=0; //clear distance
+       if(P->aabb.position[2]<global.S[s].z1){ global.S[s].surface=1;cycles =2;for (x=0;x<SW;x++){ global.S[s].surf[x] = SH; }}      //bottom surface
+  else if(P->aabb.position[2]>global.S[s].z2){ global.S[s].surface=2;cycles =2;for (x=0;x<SW;x++){ global.S[s].surf[x] = 0; }}   //top    surface
+  else                { global.S[s].surface=0;cycles =1;}  //no     surfaces
   for(frontBack=0;frontBack<cycles;frontBack++)
   {
-   for(w=S[s].ws;w<S[s].we;w++)
+   for(w=global.S[s].ws;w<global.S[s].we;w++)
    {
 
     //offset bottom 2 points by player
-    int x1=W[w].x1-(P->aabb.position[0] ) ,y1=W[w].y1-(P->aabb.position[1]);
-    int x2=W[w].x2-(P->aabb.position[0] ) ,y2=W[w].y2-(P->aabb.position[1]);
+    int x1=global.W[w].x1-(P->aabb.position[0] ) ,y1=global.W[w].y1-(P->aabb.position[1]);
+    int x2=global.W[w].x2-(P->aabb.position[0] ) ,y2=global.W[w].y2-(P->aabb.position[1]);
 
     //swap for surface
     if(frontBack==0){
@@ -505,13 +379,13 @@ int x,s,w,frontBack, cycles, wx[4],wy[4],wz[4]; float CS = M.cos[P->a], SN=M.sin
     wy[1]=y2*CS+x2*SN;
     wy[2]=wy[0];                          //top line has the same y
     wy[3]=wy[1];
-    S[s].d+=dist(0,0, (wx[0]+wx[1])/2,(wy[0]+wy[1])/2 );  //store this wall distance
+    global.S[s].d+=dist(0,0, (wx[0]+wx[1])/2,(wy[0]+wy[1])/2 );  //store this wall distance
     //world z height
-    wz[0]=S[s].z1-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[0])/3.0);
-    wz[1]=S[s].z1-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[1])/3.0);
+    wz[0]=global.S[s].z1-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[0])/3.0);
+    wz[1]=global.S[s].z1-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[1])/3.0);
 
-    wz[2]=S[s].z2-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[0])/3.0);
-    wz[3]=S[s].z2-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[1])/3.0);
+    wz[2]=global.S[s].z2-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[0])/3.0);
+    wz[3]=global.S[s].z2-(P->aabb.position[2] - P->aabb.half_size[2])+((P->l*wy[1])/3.0);
 
    //dont draw if behind player
     if(wy[0]<1 && wy[1]<1){
@@ -628,12 +502,3 @@ void draw_characters( TextureMaps* textures, Body*  P,math M ){
 }
 
 
-
-void draw3D_Map(TextureMaps* textures, Body*  P,math M){
-
-      clearBackground( textures, P, M );
-      draw3D_Walls( textures, P, M );
-      draw_characters( textures, P, M );
-      draw_ui_screen( textures, P );
-
-}

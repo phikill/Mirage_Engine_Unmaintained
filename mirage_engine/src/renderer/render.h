@@ -29,7 +29,7 @@ void set_string_party(char new_array_string[DIALOGUE_SIZE], int pos);
 void free_menu();
 bool update_button_name( int index );
 
-void setRenderer();
+void render_end();
 void change_window(bool is_window);
 
 void destroy_button_name( int new_index_button_name );

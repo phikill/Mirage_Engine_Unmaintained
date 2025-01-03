@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "load.h"
 #include "render_internal.h"
 #include "../renderer/render.h"
 #include "character_renderer.h"
@@ -29,6 +30,14 @@
 #include "../global.h"
 #include "../common.h"
 
+typedef struct
+{
+ int x,y,z,i,a,l,d;                 //add y distances to sort drawing order
+
+}Next_Character;
+ Next_Character next_character[2];
+
+
 void Calculate_3d_walls( math M, On_Hit on_trigger_hit)
 {
 
@@ -36,16 +45,16 @@ int index_trigger = 1;
  int x,s,w,frontBack, cycles, wx[4],wy[4],wz[4];
  u32 wall_count = 0;
  //draw sectors
-for(s=0;s<numSect;s++){
+for(s=0;s<global.numSect;s++){
 
 
-   w = S[s].we;
+   w = global.S[s].we;
    //offset bottom 2 points by player
-   int x1 = W[ w ].x1,
-   y1 = W[ w ].y1;
+   int x1 = global.W[ w ].x1,
+   y1 = global.W[ w ].y1;
 
-    int x2 = W[ w ].x2,
-    y2=W[ w ].y2;
+    int x2 = global.W[ w ].x2,
+    y2=global.W[ w ].y2;
 
 
    if( x2 - x1  < 0 ){ int swp=x1; x1=x2; x2=swp;}
@@ -65,11 +74,11 @@ for(s=0;s<numSect;s++){
 
 
     //world z height
-    wz[0]=S[s].z1;
-    wz[1]=S[s].z1;
+    wz[0]=global.S[s].z1;
+    wz[1]=global.S[s].z1;
 
-    wz[2]= S[s].z2;
-    wz[3]= S[s].z2;
+    wz[2]= global.S[s].z2;
+    wz[3]= global.S[s].z2;
 
 
     //draw points
@@ -77,11 +86,11 @@ for(s=0;s<numSect;s++){
     int y_pos = wy[1] - wy[0];
     int z_pos = wz[1] - wz[0];
 
-    if ( W[w].wt == 5 || W[w].wt == 9  ){
+    if ( global.W[w].wt == 5 || global.W[w].wt == 9  ){
             u32 new_body_id = physics_static_body_create((vec3){ x2 - (x_pos * .5f), y2 - ( x_pos * .5f ) , 0 }, (vec3){ x_pos * 1.2f, x_pos * 1.2f, x_pos * 1.2f }, COLLISION_LAYER_TERRAIN);
          }
 
-   else if ( W[w].wt == 10 ){
+   else if ( global.W[w].wt == 10 ){
             u8 player_mask  = COLLISION_LAYER_PLAYER;
             u32 new_body_id = physics_trigger_create((vec3){ x2 - (x_pos * .5), y2 - ( x_pos * .5f ) ,  60 }, (vec3){x_pos, x_pos, x_pos}, COLLISION_LAYER_ENEMY_PASSTHROUGH, player_mask, on_trigger_hit);
             physics_body_get(new_body_id)->index_trigger = index_trigger;
@@ -102,6 +111,7 @@ on_time_out_tree_delay delay_create_character(u32 id, u32 value, f32 current_tim
      }
    }
 }
+
 void load(int *index_, u32 *P_viewr,Sprite_Sheet sprite_sheet_player,usize new_char_player_id,
  On_Hit on_hit, On_Hit_Static on_hit_static, On_Hit on_trigger_hit, Entity_Delete On_Entity_Delete_Player )
 {
@@ -200,30 +210,30 @@ fp = fopen(level_file_name,"r");
 
  }
 
- fscanf(fp,"%i",&numSect);   //number of sectors
- for(s=0;s<numSect;s++)      //load all sectors
+ fscanf(fp,"%i",&global.numSect);   //number of sectors
+ for(s=0;s<global.numSect;s++)      //load all sectors
  {
 
-  fscanf(fp,"%i",&S[s].ws);
-  fscanf(fp,"%i",&S[s].we);
-  fscanf(fp,"%i",&S[s].z1);
-  fscanf(fp,"%i",&S[s].z2);
-  fscanf(fp,"%i",&S[s].st);
-  fscanf(fp,"%i",&S[s].ss);
+  fscanf(fp,"%i",&global.S[s].ws);
+  fscanf(fp,"%i",&global.S[s].we);
+  fscanf(fp,"%i",&global.S[s].z1);
+  fscanf(fp,"%i",&global.S[s].z2);
+  fscanf(fp,"%i",&global.S[s].st);
+  fscanf(fp,"%i",&global.S[s].ss);
 
  }
- fscanf(fp,"%i",&numWall);   //number of walls
+ fscanf(fp,"%i",&global.numWall);   //number of walls
 
- for(s=0;s<numWall;s++)      //load all walls
+ for(s=0;s<global.numWall;s++)      //load all walls
  {
-  fscanf(fp,"%i",&W[s].x1);
-  fscanf(fp,"%i",&W[s].y1);
-  fscanf(fp,"%i",&W[s].x2);
-  fscanf(fp,"%i",&W[s].y2);
-  fscanf(fp,"%i",&W[s].wt);
-  fscanf(fp,"%i",&W[s].u);
-  fscanf(fp,"%i",&W[s].v);
-  fscanf(fp,"%i",&W[s].shade);
+  fscanf(fp,"%i",&global.W[s].x1);
+  fscanf(fp,"%i",&global.W[s].y1);
+  fscanf(fp,"%i",&global.W[s].x2);
+  fscanf(fp,"%i",&global.W[s].y2);
+  fscanf(fp,"%i",&global.W[s].wt);
+  fscanf(fp,"%i",&global.W[s].u);
+  fscanf(fp,"%i",&global.W[s].v);
+  fscanf(fp,"%i",&global.W[s].shade);
  }
 
 fscanf(fp,"%i",&size_char);
