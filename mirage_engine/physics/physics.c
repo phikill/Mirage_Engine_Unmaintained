@@ -13,7 +13,7 @@ typedef struct physics_state_internal {
 } Physics_State_Internal;
 static Physics_State_Internal state;
 
-static u32 iterations = 60;
+static u32 iterations = 4;
 static f32 tick_rate;
 
 void aabb_min_max(vec3 min, vec3 max, AABB aabb) {
